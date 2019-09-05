@@ -1,0 +1,19 @@
+ext {
+    versions = [
+            mockito      : '2.22.0',
+            assertj      : '3.11.1',
+            json_unit    : '1.31.1',
+            junit        : '5.3.0',
+    ]
+
+    testingDependencies = [
+            mockito      : "org.mockito:mockito-core:$versions.mockito",
+            assertj      : "org.assertj:assertj-core:$versions.assertj",
+            json_unit    : ["net.javacrumbs.json-unit:json-unit:$versions.json_unit",
+                            "net.javacrumbs.json-unit:json-unit-fluent:$versions.json_unit"],
+            junit5       : ["org.junit.jupiter:junit-jupiter-api:$versions.junit",
+                            "org.junit.jupiter:junit-jupiter-params:$versions.junit",
+                            'org.apiguardian:apiguardian-api:1.0.0'],
+            junit5_engine: "org.junit.jupiter:junit-jupiter-engine:$versions.junit"
+    ]
+}

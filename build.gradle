@@ -1,0 +1,26 @@
+apply from: 'dependencies.gradle'
+apply plugin: 'java'
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        def testDep = rootProject.ext.testingDependencies
+
+        testImplementation testDep.junit5
+        testImplementation testDep.assertj
+        testImplementation testDep.mockito
+
+        testRuntime testDep.junit5_engine
+    }
+    
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    tasks.withType(Test) {
+        systemProperty 'file.encoding', 'UTF-8'
+    }
+}
