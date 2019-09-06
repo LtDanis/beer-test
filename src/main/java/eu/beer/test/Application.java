@@ -1,5 +1,6 @@
 package eu.beer.test;
 
+import eu.beer.test.database.BeerFactoryDao;
 import eu.beer.test.database.DatabaseInitializer;
 import eu.beer.test.entity.BeerFactory;
 import eu.beer.test.entity.Coordinates;
@@ -23,7 +24,7 @@ public class Application {
 
     private Application() {
         communicator = new SystemInputStreamCommunicator();
-        dbInitializer = new DatabaseInitializer();
+        dbInitializer = new DatabaseInitializer(new BeerFactoryDao());
         dataPreparator = new DataPreparator(new HaversineCalculator());
         roadPrinter = new RoadPrinter();
         roadCalculator = new OptimalRoadCalculator();

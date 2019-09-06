@@ -7,6 +7,12 @@ allprojects {
     }
 
     dependencies {
+        def dep = rootProject.ext.dependencies
+
+        implementation dep.apache_csv
+        implementation dep.h2_db
+        implementation dep.log4j
+
         def testDep = rootProject.ext.testingDependencies
 
         testImplementation testDep.junit5
