@@ -1,7 +1,9 @@
 package eu.beer.test.gui;
 
-public interface Communicator {
-    void print(String text);
+import java.util.Optional;
 
-    double read();
+public interface Communicator {
+    void print(Object... text);
+
+    Optional<Double> read();
 }
