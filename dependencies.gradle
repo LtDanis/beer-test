@@ -1,5 +1,7 @@
 ext {
     versions = [
+            apache_csv   : '1.6',
+            log4j        : '2.11.1',
             h2       : '1.4.197',
             mockito  : '2.22.0',
             assertj  : '3.11.1',
