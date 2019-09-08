@@ -17,23 +17,28 @@ import static java.util.stream.Collectors.toList;
 
 public class OptimalRoadCalculator {
     private static final int MAX_DISTANCE_IN_KM = 2000;
-    private static final int CLOSEST_FACTORIES_TO_CHECK = 3;
-    private static final int TIME_TO_STOP_IN_SECONDS = 15 * 60;
     private final HaversineCalculator calculator;
     private final DataPreparator dataPreparator;
     private final Map<Integer, Double> toHome;
-    private final long startTime;
+    private final int closestFactoriesToCheck;
+    private final int timeToStopInSeconds;
+    private long startTime;
 
     private List<DistanceToFactory> bestResult = emptyList();
 
-    public OptimalRoadCalculator(HaversineCalculator calculator, DataPreparator dataPreparator) {
+    public OptimalRoadCalculator(HaversineCalculator calculator,
+                                 DataPreparator dataPreparator,
+                                 int closestFactoriesToCheck,
+                                 int timeToStopInSeconds) {
         this.calculator = calculator;
         this.dataPreparator = dataPreparator;
-        startTime = System.currentTimeMillis();
+        this.closestFactoriesToCheck = closestFactoriesToCheck;
+        this.timeToStopInSeconds = timeToStopInSeconds;
         toHome = new HashMap<>();
     }
 
     public List<DistanceToFactory> find(Map<Integer, List<DistanceToFactory>> factoriesMap, Coordinates startingCoordinates) {
+        startTime = System.currentTimeMillis();
         final BeerFactory home = new BeerFactory(-1, "HOME", startingCoordinates, emptyList());
         initDistanceToHome(factoriesMap, home);
         count(factoriesMap,
@@ -65,7 +70,7 @@ public class OptimalRoadCalculator {
                 .orElseGet(() -> countClosest(distances));
         closestFactories.stream()
                 .filter(f -> !visitedFactories.contains(f.getFactory().getId()))
-                .limit(CLOSEST_FACTORIES_TO_CHECK)
+                .limit(closestFactoriesToCheck)
                 .forEach(closestFactory -> count(factoriesMap,
                         concat(distances, closestFactory),
                         concat(visitedFactories, closestFactory.getFactory().getId()),
@@ -94,6 +99,6 @@ public class OptimalRoadCalculator {
     }
 
     private boolean shouldBreak() {
-        return ((System.currentTimeMillis() - startTime) / 1000) > TIME_TO_STOP_IN_SECONDS;
+        return ((System.currentTimeMillis() - startTime) / 1000) > timeToStopInSeconds;
     }
 }

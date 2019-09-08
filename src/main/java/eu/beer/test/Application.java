@@ -28,7 +28,7 @@ public class Application {
         dbInitializer = new DatabaseInitializer(new BeerFactoryDao(), new CsvToObject());
         dataPreparator = new DataPreparator(calculator, new BeerFactoryDao());
         roadPrinter = new RoadPrinter(communicator);
-        roadCalculator = new OptimalRoadCalculator(calculator, dataPreparator);
+        roadCalculator = new OptimalRoadCalculator(calculator, dataPreparator, 3, 60);
     }
 
     public static void main(String[] args) {
