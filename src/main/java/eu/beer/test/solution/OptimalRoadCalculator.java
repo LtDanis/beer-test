@@ -3,7 +3,6 @@ package eu.beer.test.solution;
 import eu.beer.test.entity.BeerFactory;
 import eu.beer.test.entity.Coordinates;
 import eu.beer.test.entity.DistanceToFactory;
-import eu.beer.test.util.DataPreparator;
 import eu.beer.test.util.HaversineCalculator;
 
 import java.util.HashMap;
@@ -18,7 +17,7 @@ import static java.util.stream.Collectors.toList;
 
 public class OptimalRoadCalculator {
     private static final int MAX_DISTANCE_IN_KM = 2000;
-    private static final int CLOSEST_FACTORIES_TO_CHECK = 1;
+    private static final int CLOSEST_FACTORIES_TO_CHECK = 3;
     private List<DistanceToFactory> bestResult = emptyList();
     private final HaversineCalculator calculator;
     private final DataPreparator dataPreparator;
@@ -31,37 +30,57 @@ public class OptimalRoadCalculator {
     }
 
     public List<DistanceToFactory> find(Map<Integer, List<DistanceToFactory>> factoriesMap, Coordinates startingCoordinates) {
-        DistanceToFactory home = new DistanceToFactory(0, new BeerFactory(-1, "HOME", startingCoordinates, emptyList()));
+        final BeerFactory home = new BeerFactory(-1, "HOME", startingCoordinates, emptyList());
+        initDistanceToHome(factoriesMap, home);
+        count(factoriesMap,
+                singletonList(new DistanceToFactory(0, home)),
+                singletonList(home.getId()),
+                0);
+        return Stream.concat(
+                bestResult.stream(),
+                Stream.of(new DistanceToFactory(toHome.get(getLastFactoryId(bestResult)), home)))
+                .collect(toList());
+    }
+
+    private void initDistanceToHome(Map<Integer, List<DistanceToFactory>> factoriesMap, BeerFactory home) {
         factoriesMap.values().stream()
                 .flatMap(List::stream)
                 .map(DistanceToFactory::getFactory)
-                .forEach(f -> toHome.put(f.getId(), calculator.distance(f.getCoordinates(), home.getFactory().getCoordinates())));
-        count(factoriesMap, singletonList(home), 0);
-        return Stream.concat(bestResult.stream(), Stream.of(home)).collect(toList());
+                .forEach(f -> toHome.put(f.getId(), calculator.distance(f.getCoordinates(), home.getCoordinates())));
     }
 
-    private void count(Map<Integer, List<DistanceToFactory>> factoriesMap, List<DistanceToFactory> distances, double distance) {
+    private void count(Map<Integer, List<DistanceToFactory>> factoriesMap,
+                       List<DistanceToFactory> distances,
+                       List<Integer> visitedFactories,
+                       double distance) {
         if ((distance + distanceToHomeFromLastFactory(distances)) > MAX_DISTANCE_IN_KM)
             return;
         if (distances.size() > bestResult.size())
             bestResult = distances;
-        final int lastFactory = getLast(distances).getFactory().getId();
-        final List<DistanceToFactory> closestFactories = ofNullable(factoriesMap.get(lastFactory))
+        final List<DistanceToFactory> closestFactories = ofNullable(factoriesMap.get(getLastFactoryId(distances)))
                 .orElse(countClosest(distances));
         closestFactories.stream()
+                .filter(f -> !visitedFactories.contains(f.getFactory().getId()))
                 .limit(CLOSEST_FACTORIES_TO_CHECK)
-                .forEach(closestFactory -> count(factoriesMap, concat(distances, closestFactory), distance + closestFactory.getDistanceInKm()));
+                .forEach(closestFactory -> count(factoriesMap,
+                        concat(distances, closestFactory),
+                        concat(visitedFactories, closestFactory.getFactory().getId()),
+                        distance + closestFactory.getDistanceInKm()));
+    }
+
+    private int getLastFactoryId(List<DistanceToFactory> distances) {
+        return getLast(distances).getFactory().getId();
     }
 
     private Double distanceToHomeFromLastFactory(List<DistanceToFactory> distances) {
-        return toHome.getOrDefault(getLast(distances).getFactory().getId(), 0.0);
+        return toHome.getOrDefault(getLastFactoryId(distances), 0.0);
     }
 
     private List<DistanceToFactory> countClosest(List<DistanceToFactory> distances) {
         return dataPreparator.countDistances(getLast(distances).getFactory());
     }
 
-    private List<DistanceToFactory> concat(List<DistanceToFactory> distances, DistanceToFactory closestFactory) {
+    private <T> List<T> concat(List<T> distances, T closestFactory) {
         return Stream.concat(distances.stream(), Stream.of(closestFactory))
                 .collect(toList());
     }

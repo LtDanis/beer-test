@@ -24,7 +24,7 @@ public class BeerFactoryDao {
         return new Statement(sql, connection);
     }
 
-    public List<BeerFactory> getFactories() {
+    public List<BeerFactory> getBeerFactories() {
         List<Integer> ids = new Statement("SELECT id FROM beer_factories", connection)
                 .runForList(r -> r.getInt("id"));
         return ids.stream()
@@ -34,7 +34,7 @@ public class BeerFactoryDao {
                 .collect(toList());
     }
 
-    public Optional<BeerFactory> readById(int factoryId) {
+    private Optional<BeerFactory> readById(int factoryId) {
         return new Statement("SELECT * FROM beer_factories " +
                 "LEFT JOIN beers ON beer_factories.id=beers.beer_factory_id " +
                 "WHERE beer_factories.id = ?", connection)

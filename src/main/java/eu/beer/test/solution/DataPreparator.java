@@ -1,8 +1,9 @@
-package eu.beer.test.util;
+package eu.beer.test.solution;
 
 import eu.beer.test.database.BeerFactoryDao;
 import eu.beer.test.entity.BeerFactory;
 import eu.beer.test.entity.DistanceToFactory;
+import eu.beer.test.util.HaversineCalculator;
 
 import java.util.Comparator;
 import java.util.List;
@@ -21,12 +22,12 @@ public class DataPreparator {
     }
 
     public List<DistanceToFactory> countDistances(BeerFactory factory) {
-        final List<BeerFactory> factories = beerFactoryDao.getFactories();
+        final List<BeerFactory> factories = beerFactoryDao.getBeerFactories();
         return sortByDistance(factory, factories);
     }
 
     public Map<Integer, List<DistanceToFactory>> prepare() {
-        final List<BeerFactory> factories = beerFactoryDao.getFactories();
+        final List<BeerFactory> factories = beerFactoryDao.getBeerFactories();
         return factories.stream()
                 .collect(toMap(BeerFactory::getId, f -> sortByDistance(f, factories)));
     }

@@ -20,7 +20,7 @@ class ConnectionProvider {
         password = "";
     }
 
-    public Connection getDBConnection() {
+    Connection getDBConnection() {
         if (connection == null)
             createNewConnectionToDb();
         return connection;

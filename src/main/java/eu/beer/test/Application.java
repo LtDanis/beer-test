@@ -9,7 +9,7 @@ import eu.beer.test.gui.Communicator;
 import eu.beer.test.gui.RoadPrinter;
 import eu.beer.test.gui.SystemInputStreamCommunicator;
 import eu.beer.test.solution.OptimalRoadCalculator;
-import eu.beer.test.util.DataPreparator;
+import eu.beer.test.solution.DataPreparator;
 import eu.beer.test.util.HaversineCalculator;
 
 import java.util.List;

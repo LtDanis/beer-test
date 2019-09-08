@@ -18,16 +18,7 @@ public class Statement {
         this.connection = connection;
     }
 
-    public <R> List<R> runForList(SqlConsumer<Parameter> parameter, SqlFunction<R> resultsConsumer) {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            parameter.accept(new Parameter(preparedStatement));
-            return executeForList(resultsConsumer, preparedStatement);
-        } catch (SQLException e) {
-            throw new StorageException(e);
-        }
-    }
-
-    public <R> List<R> runForList(SqlFunction<R> resultsConsumer) {
+    <R> List<R> runForList(SqlFunction<R> resultsConsumer) {
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             return executeForList(resultsConsumer, preparedStatement);
         } catch (SQLException e) {
@@ -75,7 +66,7 @@ public class Statement {
         }
     }
 
-    public class Parameter {
+    public static class Parameter {
         private final PreparedStatement preparedStatement;
         private final AtomicInteger index;
 
@@ -84,7 +75,7 @@ public class Statement {
             index = new AtomicInteger(1);
         }
 
-        public Parameter integer(int param) {
+        Parameter integer(int param) {
             try {
                 preparedStatement.setInt(index.getAndIncrement(), param);
             } catch (SQLException e) {
@@ -93,7 +84,7 @@ public class Statement {
             return this;
         }
 
-        public Parameter string(String param) {
+        Parameter string(String param) {
             try {
                 preparedStatement.setString(index.getAndIncrement(), param);
             } catch (SQLException e) {
@@ -102,7 +93,7 @@ public class Statement {
             return this;
         }
 
-        public Parameter doubleVal(Double param) {
+        Parameter doubleVal(Double param) {
             try {
                 preparedStatement.setDouble(index.getAndIncrement(), param);
             } catch (SQLException e) {
@@ -125,10 +116,6 @@ public class Statement {
     private static class StorageException extends RuntimeException {
         StorageException(SQLException e) {
             super(e);
-        }
-
-        StorageException(String msg) {
-            super(msg);
         }
     }
 }
