@@ -18,14 +18,18 @@ import static java.util.stream.Collectors.toList;
 public class OptimalRoadCalculator {
     private static final int MAX_DISTANCE_IN_KM = 2000;
     private static final int CLOSEST_FACTORIES_TO_CHECK = 3;
-    private List<DistanceToFactory> bestResult = emptyList();
+    private static final int TIME_TO_STOP_IN_SECONDS = 15 * 60;
     private final HaversineCalculator calculator;
     private final DataPreparator dataPreparator;
     private final Map<Integer, Double> toHome;
+    private final long startTime;
+
+    private List<DistanceToFactory> bestResult = emptyList();
 
     public OptimalRoadCalculator(HaversineCalculator calculator, DataPreparator dataPreparator) {
         this.calculator = calculator;
         this.dataPreparator = dataPreparator;
+        startTime = System.currentTimeMillis();
         toHome = new HashMap<>();
     }
 
@@ -53,12 +57,12 @@ public class OptimalRoadCalculator {
                        List<DistanceToFactory> distances,
                        List<Integer> visitedFactories,
                        double distance) {
-        if ((distance + distanceToHomeFromLastFactory(distances)) > MAX_DISTANCE_IN_KM)
+        if ((distance + distanceToHomeFromLastFactory(distances)) > MAX_DISTANCE_IN_KM || shouldBreak())
             return;
         if (distances.size() > bestResult.size())
             bestResult = distances;
         final List<DistanceToFactory> closestFactories = ofNullable(factoriesMap.get(getLastFactoryId(distances)))
-                .orElse(countClosest(distances));
+                .orElseGet(() -> countClosest(distances));
         closestFactories.stream()
                 .filter(f -> !visitedFactories.contains(f.getFactory().getId()))
                 .limit(CLOSEST_FACTORIES_TO_CHECK)
@@ -87,5 +91,9 @@ public class OptimalRoadCalculator {
 
     private DistanceToFactory getLast(List<DistanceToFactory> distances) {
         return distances.get(distances.size() - 1);
+    }
+
+    private boolean shouldBreak() {
+        return ((System.currentTimeMillis() - startTime) / 1000) > TIME_TO_STOP_IN_SECONDS;
     }
 }
