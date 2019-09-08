@@ -3,7 +3,6 @@ package eu.beer.test;
 import eu.beer.test.database.BeerFactoryDao;
 import eu.beer.test.database.CsvToObject;
 import eu.beer.test.database.DatabaseInitializer;
-import eu.beer.test.entity.BeerFactory;
 import eu.beer.test.entity.Coordinates;
 import eu.beer.test.entity.DistanceToFactory;
 import eu.beer.test.gui.Communicator;
@@ -24,11 +23,12 @@ public class Application {
     private final OptimalRoadCalculator roadCalculator;
 
     private Application() {
+        final HaversineCalculator calculator = new HaversineCalculator();
         communicator = new SystemInputStreamCommunicator();
         dbInitializer = new DatabaseInitializer(new BeerFactoryDao(), new CsvToObject());
-        dataPreparator = new DataPreparator(new HaversineCalculator());
-        roadPrinter = new RoadPrinter();
-        roadCalculator = new OptimalRoadCalculator();
+        dataPreparator = new DataPreparator(calculator, new BeerFactoryDao());
+        roadPrinter = new RoadPrinter(communicator);
+        roadCalculator = new OptimalRoadCalculator(calculator, dataPreparator);
     }
 
     public static void main(String[] args) {
@@ -40,12 +40,12 @@ public class Application {
         Map<Integer, List<DistanceToFactory>> factoriesMap = dataPreparator.prepare();
 
         Coordinates startingCoordinates = getStartingCoordinates();
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
 
-        List<BeerFactory> road = roadCalculator.find(factoriesMap);
+        List<DistanceToFactory> road = roadCalculator.find(factoriesMap, startingCoordinates);
 
-        roadPrinter.print(road, startingCoordinates);
-        communicator.print(String.format("System took %.2f s", countTimeTaken(startTime)));
+        roadPrinter.print(road);
+        communicator.print(String.format("Program took %.3f ms", countTimeTaken(startTime)));
     }
 
     private Coordinates getStartingCoordinates() {
@@ -60,6 +60,6 @@ public class Application {
     }
 
     private double countTimeTaken(long startTime) {
-        return (System.currentTimeMillis() - startTime) * 1.0 / 1000;
+        return (System.nanoTime() - startTime) * 1.0 / 1000_000;
     }
 }

@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.stream.Collectors.toList;
+
 public class BeerFactoryDao {
     private final Connection connection;
 
@@ -22,7 +24,17 @@ public class BeerFactoryDao {
         return new Statement(sql, connection);
     }
 
-    Optional<BeerFactory> readById(int factoryId) {
+    public List<BeerFactory> getFactories() {
+        List<Integer> ids = new Statement("SELECT id FROM beer_factories", connection)
+                .runForList(r -> r.getInt("id"));
+        return ids.stream()
+                .map(this::readById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(toList());
+    }
+
+    public Optional<BeerFactory> readById(int factoryId) {
         return new Statement("SELECT * FROM beer_factories " +
                 "LEFT JOIN beers ON beer_factories.id=beers.beer_factory_id " +
                 "WHERE beer_factories.id = ?", connection)

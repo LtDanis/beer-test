@@ -2,18 +2,18 @@ package eu.beer.test.entity;
 
 public class DistanceToFactory {
     private final double distanceInKm;
-    private final int factoryId;
+    private final BeerFactory factory;
 
-    public DistanceToFactory(double distanceInKm, int factoryId) {
+    public DistanceToFactory(double distanceInKm, BeerFactory factory) {
         this.distanceInKm = distanceInKm;
-        this.factoryId = factoryId;
+        this.factory = factory;
     }
 
     public double getDistanceInKm() {
         return distanceInKm;
     }
 
-    public int getFactoryId() {
-        return factoryId;
+    public BeerFactory getFactory() {
+        return factory;
     }
 }
